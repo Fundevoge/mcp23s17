@@ -11,7 +11,7 @@ addressed over the SPI bus.
 """
 readme = "README.md"
 # homepage = "https://docs.rs/mcp23s17/"
-# repository = "https://github.com/Fundevoge/mcp23s17/"
+repository = "https://github.com/Fundevoge/mcp23s17/"
 keywords = ["MCP23S17"]
 categories = ["hardware-support", "embedded", "no-std"]
 
