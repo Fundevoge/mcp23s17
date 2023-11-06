@@ -1,0 +1,20 @@
+[package]
+name = "mcp23s17"
+version = "0.1.0"
+edition = "2021"
+authors = ["Fundevoge <59122389+Fundevoge@users.noreply.github.com>"]
+license = "MIT"
+description = """MCP23S17 driver
+
+A driver for the MCP23S17 16 bit I/O expander chip
+addressed over the SPI bus.
+"""
+readme = "README.md"
+# homepage = "https://docs.rs/mcp23s17/"
+# repository = "https://github.com/Fundevoge/mcp23s17/"
+keywords = ["MCP23S17"]
+categories = ["hardware-support", "embedded", "no-std"]
+
+[dependencies]
+embedded-hal = {version = "0.2.7"}
+bitflags = "2.4.1"
