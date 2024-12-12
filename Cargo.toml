@@ -1,6 +1,6 @@
 [package]
 name = "mcp23s17"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Fundevoge <59122389+Fundevoge@users.noreply.github.com>"]
 license = "MIT"
