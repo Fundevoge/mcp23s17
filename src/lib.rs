@@ -251,9 +251,7 @@ pub enum InterruptMode {
 /// // Read GPA1's level
 /// let is_high = mcp23s17.read(1);
 /// ```
-pub struct Mcp23s17<
-    SPI: embedded_hal::spi::SpiDevice
-> {
+pub struct Mcp23s17<SPI: embedded_hal::spi::SpiDevice> {
     spi: SPI,
 
     /// The control byte to use in a message.
@@ -276,12 +274,10 @@ fn pin_mask(pin_num: u8) -> u8 {
     0b1 << pin_num
 }
 
-impl<SPI: embedded_hal::spi::SpiDevice> Mcp23s17<SPI>
-{
+impl<SPI: embedded_hal::spi::SpiDevice> Mcp23s17<SPI> {
     /// Create an MCP23S17 instance
     #[allow(clippy::identity_op)]
     pub fn new(spi: SPI, address: u8) -> Result<Self> {
-
         let mut mcp = Mcp23s17 {
             spi,
             spi_read_control_byte: 0b01000000_u8 | 0b000 << 1 | 1 << 0,
@@ -545,8 +541,7 @@ impl<SPI: embedded_hal::spi::SpiDevice> Mcp23s17<SPI>
     }
 }
 
-impl<SPI: embedded_hal::spi::SpiDevice> Mcp23s17<SPI>
-{
+impl<SPI: embedded_hal::spi::SpiDevice> Mcp23s17<SPI> {
     fn set_pin_interrupt_enabled(&mut self, pin: u8) {
         let pin_num = pin % 8;
         let mask = pin_mask(pin_num);
@@ -658,7 +653,6 @@ impl<SPI: embedded_hal::spi::SpiDevice> Mcp23s17<SPI>
     fn _write(&mut self, write_buffer: &[u8]) -> Result<()> {
         self.spi
             .write(write_buffer)
-            .map_err(|_| Mcp23s17SpiError {})?;
-        Ok(())
+            .map_err(|_| Mcp23s17SpiError {})
     }
 }
