@@ -252,11 +252,9 @@ pub enum InterruptMode {
 /// let is_high = mcp23s17.read(1);
 /// ```
 pub struct Mcp23s17<
-    SPI: embedded_hal::prelude::_embedded_hal_blocking_spi_Transfer<u8>,
-    CS: embedded_hal::digital::v2::OutputPin,
+    SPI: embedded_hal::spi::SpiDevice
 > {
     spi: SPI,
-    chip_select: CS,
 
     /// The control byte to use in a message.
     ///
@@ -278,20 +276,14 @@ fn pin_mask(pin_num: u8) -> u8 {
     0b1 << pin_num
 }
 
-impl<
-        SPI: embedded_hal::prelude::_embedded_hal_blocking_spi_Transfer<u8>
-            + embedded_hal::prelude::_embedded_hal_blocking_spi_Write<u8>,
-        CS: embedded_hal::digital::v2::OutputPin,
-    > Mcp23s17<SPI, CS>
+impl<SPI: embedded_hal::spi::SpiDevice> Mcp23s17<SPI>
 {
     /// Create an MCP23S17 instance
     #[allow(clippy::identity_op)]
-    pub fn new(spi: SPI, mut chip_select: CS, address: u8) -> Result<Self> {
-        chip_select.set_high().ok().unwrap();
+    pub fn new(spi: SPI, address: u8) -> Result<Self> {
 
         let mut mcp = Mcp23s17 {
             spi,
-            chip_select,
             spi_read_control_byte: 0b01000000_u8 | 0b000 << 1 | 1 << 0,
             spi_write_control_byte: 0b01000000_u8 | 0b000 << 1 | 0 << 0,
             pin_io_configurations_a: 0,
@@ -553,11 +545,7 @@ impl<
     }
 }
 
-impl<
-        SPI: embedded_hal::prelude::_embedded_hal_blocking_spi_Transfer<u8>
-            + embedded_hal::prelude::_embedded_hal_blocking_spi_Write<u8>,
-        CS: embedded_hal::digital::v2::OutputPin,
-    > Mcp23s17<SPI, CS>
+impl<SPI: embedded_hal::spi::SpiDevice> Mcp23s17<SPI>
 {
     fn set_pin_interrupt_enabled(&mut self, pin: u8) {
         let pin_num = pin % 8;
@@ -648,17 +636,10 @@ impl<
     }
 
     fn _transfer<'a>(&mut self, write_buffer: &'a mut [u8]) -> Result<&'a [u8]> {
-        self.chip_select
-            .set_low()
+        self.spi
+            .transfer_in_place(write_buffer)
             .map_err(|_| Mcp23s17SpiError {})?;
-        let read_buffer = self
-            .spi
-            .transfer(write_buffer)
-            .map_err(|_| Mcp23s17SpiError {})?;
-        self.chip_select
-            .set_high()
-            .map_err(|_| Mcp23s17SpiError {})?;
-        Ok(read_buffer)
+        Ok(write_buffer)
     }
 
     /// Write the byte `data` to the MCP23S17 register at address `register`.
@@ -675,12 +656,9 @@ impl<
     }
 
     fn _write(&mut self, write_buffer: &[u8]) -> Result<()> {
-        self.chip_select
-            .set_low()
-            .map_err(|_| Mcp23s17SpiError {})?;
         self.spi
             .write(write_buffer)
             .map_err(|_| Mcp23s17SpiError {})?;
-        self.chip_select.set_high().map_err(|_| Mcp23s17SpiError {})
+        Ok(())
     }
 }
